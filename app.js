@@ -1,4 +1,5 @@
-const containerShow = document.querySelector(".main-container");
+const containerShow = document.querySelector(".card-container-for-nasa");
+const nesneArr = [];
 
 async function getNasaApi() {
   const counter = 10;
@@ -6,28 +7,57 @@ async function getNasaApi() {
   const nasaApi = await fetch(
     `https://api.nasa.gov/planetary/apod?api_key=${nasaKey}&count=${counter}`
   );
-
   const nasaApiJson = await nasaApi.json();
-  console.log(nasaApiJson);
-
   function createNasaCard(temp) {
     let card = "";
     for (let i = 0; i < temp.length; i++) {
       card += `
     <div class="little-container mb-4">
       <div class="img-div">
-      <img class="img-position" src="${temp[i].url}" alt="" /> 
+     <a href="${temp[i].url}" target="_blank"> <img class="img-position" src="${temp[i].url}" alt="${temp[i].title}" /> </a>
       </div>
-      <h1 class="py-3">${temp[i].title}</h1>
-      <a href="" class="my-3">Add To Favorites</a>
-      <div class="text-div mt-5">${temp[i].explanation}</div>
-      <span class="bottom-span mt-4">${temp[i].date}</span>
+      <h1 class="p-3 ">${temp[i].title}</h1>
+      <a href="#" class="giveAttribute my-1 p-3" id="${i}">Add To Favorites</a>
+      <div class="text-div mt-3 p-3">${temp[i].explanation}</div>
+      <span class="bottom-span mt-4 p-3 font-weight-bold">${temp[i].date}</span>
   </div>`;
     }
     containerShow.insertAdjacentHTML("beforeend", card);
   }
   createNasaCard(nasaApiJson);
+  //Favorilere ekliyorum best practice sanırım . ÇOK İYİYİM.
+  const addToFavorites = document.querySelectorAll(".giveAttribute");
+  const favoritesBtn = document.querySelector(".show-my-favorites");
+  const loadMoreBtn = document.querySelector(".show-more-pictures");
+  const nasaContainer = document.querySelector(".card-container-for-nasa");
+  // const cardContainer = document.querySelector(".little-container");
+  addToFavorites.forEach((data) => {
+    data.addEventListener("click", () => {
+      nesneArr.push(nasaApiJson[data.id]);
+      /*İlgili add to favorites'e tıklandığında.ID ye karşılık gelen api verisini
+      bir ArrayNesnesinde tutuyorum. Bunu local storage atıp.
+      Yeni sayfada ekrana vereceğim.Ardından, RemoveFavorites dediğim an ,
+      display="block yapıp" arrayden çıkartacağım.Ve local storage'ı güncelleyeceğim.
+      */
+      localStorage.setItem(
+        String(data.id),
+        JSON.stringify(nasaApiJson[data.id])
+      );
+    });
+  });
+
+  // console.log(cardContainer);
+  //Favorites butonu
+  favoritesBtn.addEventListener("click", function () {
+    nasaContainer.classList.add("hidden");
+  });
+
+  // Load More Butonu
+  loadMoreBtn.addEventListener("click", function () {
+    window.location.reload();
+  });
 }
 getNasaApi();
+// Local storage kullanımı.
 
-//API request  exceeded for day lets continue later.
+// localStorage.clear();
